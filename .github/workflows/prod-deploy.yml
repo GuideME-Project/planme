@@ -65,6 +65,7 @@ jobs:
             --build-arg NEXT_PUBLIC_ODSAY_API_KEY="${{ vars.NEXT_PUBLIC_ODSAY_API_KEY }}" \
             --build-arg NEXT_PUBLIC_NAVER_MAPS_CLIENT_ID="${{ vars.NEXT_PUBLIC_NAVER_MAPS_CLIENT_ID }}" \
             --build-arg NEXT_PUBLIC_NCP_MAPS_CLIENT_ID="${{ vars.NEXT_PUBLIC_NCP_MAPS_CLIENT_ID }}" \
+            --build-arg NEXT_PUBLIC_ZENDESK_WIDGET_KEY="${{ vars.NEXT_PUBLIC_ZENDESK_WIDGET_KEY }}" \
             --tag "$IMAGE_URI:prod-${{ github.sha }}" \
             --tag "$IMAGE_URI:prod" \
             .

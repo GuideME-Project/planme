@@ -33,6 +33,7 @@ import type { DispatchArticle } from "@/lib/planme-dispatch";
 import { RollerCards } from "./RollerCards";
 import type { PlanmeRollerCards } from "@/lib/planme-rollers";
 import { HomeVideo } from "./HomeVideo";
+import { HelpmeButton } from "./HelpmeButton";
 import { PartnerWidget } from "./PartnerWidget";
 import { getContentPage } from "./content-pagination";
 import { useMagazine } from "./use-magazine";
@@ -553,7 +554,7 @@ export function PlanmeHome({ children, articles: initialArticles = [], rollerCar
           </Link>
           <a href="#guide-app" className={styles.joinButton}>JOIN NOW</a>
           <div className={styles.headerTools}>
-            <a href="guideme://help-me/intro" aria-label={locale === "ko" ? "GuideME 앱에서 HelpME 열기" : "Open HelpME in the GuideME app"} title="HelpME"><span className={styles.helpMark} aria-hidden="true">?</span></a>
+            <HelpmeButton />
             <LanguageSwitcher compact />
           </div>
         </header>
