@@ -16,6 +16,8 @@ type ZendeskWindow = Window & {
 // Tags reach Zendesk only when the visitor starts a conversation or sends a message, so they are set before the first open.
 const PLANME_CONVERSATION_TAGS = ["planme"];
 const ZENDESK_LOCALES: Record<Locale, string> = { ko: "ko", en: "en-US" };
+// A stalled snippet request fires neither onload nor onerror, so give up after 10 seconds and fall back to the app link.
+const ZENDESK_LOAD_TIMEOUT_MS = 10_000;
 
 /** The snippet replaces window.zE once the widget boots, so callers read it on every command instead of keeping a reference. */
 function zendesk(): ZendeskMessengerApi {
@@ -36,8 +38,13 @@ function loadZendeskMessenger(widgetKey: string): Promise<void> {
   zendeskWindow.planmeZendeskPromise = new Promise<void>((resolve, reject) => {
     script.id = "ze-snippet";
     script.async = true;
-    script.onerror = () => reject(new Error("Zendesk messaging snippet failed to load"));
+    const timeout = window.setTimeout(() => reject(new Error("Zendesk messaging snippet timed out")), ZENDESK_LOAD_TIMEOUT_MS);
+    script.onerror = () => {
+      window.clearTimeout(timeout);
+      reject(new Error("Zendesk messaging snippet failed to load"));
+    };
     script.onload = () => {
+      window.clearTimeout(timeout);
       try {
         zendesk()("messenger:set", "conversationTags", PLANME_CONVERSATION_TAGS);
         zendesk()("messenger:on", "close", () => zendesk()("messenger", "hide"));
