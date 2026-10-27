@@ -177,7 +177,7 @@ function MagazineNotice({ magazine }: { magazine: MagazineState }) {
   const { t, locale } = useLocale();
   const name = magazine.countryCode
     ? new Intl.DisplayNames([locale], { type: "region" }).of(magazine.countryCode) : null;
-  if (!name && !magazine.loading && !magazine.failed && magazine.articles.length && !magazine.hasMore) return null;
+  if (!name && !magazine.loading && !magazine.failed && magazine.articles.length) return null;
   return <div className={styles.magazineNotice} aria-busy={magazine.loading}>
     {name && <strong>{name} · Roller’s Dispatch</strong>}
     {(magazine.loading || magazine.failed || !magazine.articles.length) && <p role={magazine.failed ? "alert" : "status"}>
@@ -186,7 +186,6 @@ function MagazineNotice({ magazine }: { magazine: MagazineState }) {
         : t("이 국가에 등록된 매거진 기사가 아직 없어요.")}
     </p>}
     {magazine.failed && <button type="button" onClick={magazine.retry}>{t("다시 시도")}</button>}
-    {magazine.hasMore && <button type="button" disabled={magazine.loading} onClick={magazine.loadMore}>{t("기사 더 보기")}</button>}
   </div>;
 }
 
