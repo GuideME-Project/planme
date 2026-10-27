@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale } from "@/components/i18n/LocaleProvider";
-import { MAGAZINE_PAGE_SIZE, parseMagazinePage } from "@/lib/planme-magazine";
+import { parseMagazinePage } from "@/lib/planme-magazine";
 import { useMagazineCountry } from "./MagazineContext";
 import type { HomeArticle } from "./home-content";
 
@@ -54,8 +54,6 @@ export function useMagazine() {
     articles: current?.articles ?? [],
     loading,
     failed: !loading && Boolean(current?.failed),
-    hasMore: Boolean(current && !current.failed && current.skip + MAGAZINE_PAGE_SIZE < current.count),
     retry: () => setRequest({ key, skip, attempt: attempt + 1 }),
-    loadMore: () => setRequest({ key, skip: skip + MAGAZINE_PAGE_SIZE, attempt: 0 }),
   };
 }

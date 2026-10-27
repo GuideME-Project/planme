@@ -1675,3 +1675,20 @@
 }
 .helpMark { color: #20262e; font-size: 17px; font-weight: 700; line-height: 1; }
 .thrillVideo { position: relative; overflow: hidden; aspect-ratio: 16 / 9; border-radius: 25px; background: #122a47; }
+/* Festival banner: Figma 1523×236 banner with a 337×194 logo and 96px copy, scaled by the banner width.
+   Figma uses Pretendard Black, which the app does not load, so the copy uses Geist 900. */
+.festivalBanner { container-type: inline-size; display: flex; align-items: center; aspect-ratio: 1523 / 236; margin-top: 36px; border-radius: 25px; background: #fcb015; overflow: hidden; }
+.festivalBanner .bannerArtwork { width: 22.13cqi; height: 12.74cqi; margin-left: 8.47cqi; }
+.festivalBanner .bannerArtwork img { object-fit: cover; }
+.festivalBanner strong { flex: 1; min-width: 0; margin: 0 .33cqi 0 -1.84cqi; text-align: center; color: white; font-family: var(--font-geist-sans), sans-serif; font-size: 6.3cqi; font-weight: 900; line-height: 1; white-space: nowrap; }
+.festivalBanner:focus-visible { outline: 3px solid #257acb; outline-offset: 4px; }
+/* Figma places PlanME's Pick about 90px below the festival banner. */
+@media (min-width: 768px) {
+  .festivalBanner + .section { margin-top: 90px; }
+}
+/* No web mobile frame: follow the app banner's taller proportions so the copy stays readable. */
+@media (max-width: 767px) {
+  .festivalBanner { aspect-ratio: 4.4 / 1; margin-top: 18px; border-radius: 18px; }
+  .festivalBanner .bannerArtwork { width: 25cqi; height: 14.4cqi; margin-left: 7cqi; }
+  .festivalBanner strong { margin: 0 2cqi 0 0; font-size: 7.4cqi; }
+}

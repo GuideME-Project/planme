@@ -142,6 +142,22 @@ function PartnerBanner() {
   );
 }
 
+function FestivalBanner() {
+  const { locale } = useLocale();
+  return (
+    <a
+      className={styles.festivalBanner}
+      href={partnerLinks.regionalNews}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={locale === "ko" ? "It’s My Festival! 지역뉴스 새 창에서 보기" : "It’s My Festival! Read local news in a new tab"}
+    >
+      <BannerArtwork name="holi-festival" />
+      <strong lang="en">It’s My Festival!</strong>
+    </a>
+  );
+}
+
 type ContentSearch = { category: ContentCategory; query: string; view: "grid" | "list"; page: number };
 function readContentSearch(text: string | null): ContentSearch {
   const empty: ContentSearch = { category: "all", query: "", view: "grid", page: 1 };
@@ -177,7 +193,7 @@ function MagazineNotice({ magazine }: { magazine: MagazineState }) {
   const { t, locale } = useLocale();
   const name = magazine.countryCode
     ? new Intl.DisplayNames([locale], { type: "region" }).of(magazine.countryCode) : null;
-  if (!name && !magazine.loading && !magazine.failed && magazine.articles.length && !magazine.hasMore) return null;
+  if (!name && !magazine.loading && !magazine.failed && magazine.articles.length) return null;
   return <div className={styles.magazineNotice} aria-busy={magazine.loading}>
     {name && <strong>{name} · Roller’s Dispatch</strong>}
     {(magazine.loading || magazine.failed || !magazine.articles.length) && <p role={magazine.failed ? "alert" : "status"}>
@@ -186,7 +202,6 @@ function MagazineNotice({ magazine }: { magazine: MagazineState }) {
         : t("이 국가에 등록된 매거진 기사가 아직 없어요.")}
     </p>}
     {magazine.failed && <button type="button" onClick={magazine.retry}>{t("다시 시도")}</button>}
-    {magazine.hasMore && <button type="button" disabled={magazine.loading} onClick={magazine.loadMore}>{t("기사 더 보기")}</button>}
   </div>;
 }
 
@@ -584,6 +599,7 @@ export function PlanmeHome({ children, articles: initialArticles = [], rollerCar
             <PartnerBanner />
           </div>
         </section>
+        <FestivalBanner />
         <SavedContentExplorer articles={articles} magazine={magazine} />
         <section className={styles.thrillSection} aria-labelledby="thrill-title">
           <div><span className={styles.thrillEyebrow}>Only The Best Quality For You</span><h2 id="thrill-title">Thrill<span>ME</span></h2><p>{locale === "ko" ? <>현장의 짜릿함을 온몸으로!<br />차원이 다른 최고의 직관 경험</> : "Feel the excitement. Experience the best moments, live."}</p></div>
