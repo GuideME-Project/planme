@@ -8,6 +8,7 @@ export const partnerLinks = {
   insurance: "https://ektatraveling.tpx.lt/dJ5LpEr4",
   wink: "https://www.winkme.kr/",
   gift: "https://www.giftme.kr/",
+  regionalNews: "https://guideme.co.kr/html_file.php?file=normal_area.html&file2=default_area.html&now_category=%EC%A7%80%EC%97%AD%EB%89%B4%EC%8A%A4",
 } as const;
 
 // Official store listings verified on 2026-09-09.

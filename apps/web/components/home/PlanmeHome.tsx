@@ -142,6 +142,22 @@ function PartnerBanner() {
   );
 }
 
+function FestivalBanner() {
+  const { locale } = useLocale();
+  return (
+    <a
+      className={styles.festivalBanner}
+      href={partnerLinks.regionalNews}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={locale === "ko" ? "It’s My Festival! 지역뉴스 새 창에서 보기" : "It’s My Festival! Read local news in a new tab"}
+    >
+      <BannerArtwork name="holi-festival" />
+      <strong lang="en">It’s My Festival!</strong>
+    </a>
+  );
+}
+
 type ContentSearch = { category: ContentCategory; query: string; view: "grid" | "list"; page: number };
 function readContentSearch(text: string | null): ContentSearch {
   const empty: ContentSearch = { category: "all", query: "", view: "grid", page: 1 };
@@ -583,6 +599,7 @@ export function PlanmeHome({ children, articles: initialArticles = [], rollerCar
             <PartnerBanner />
           </div>
         </section>
+        <FestivalBanner />
         <SavedContentExplorer articles={articles} magazine={magazine} />
         <section className={styles.thrillSection} aria-labelledby="thrill-title">
           <div><span className={styles.thrillEyebrow}>Only The Best Quality For You</span><h2 id="thrill-title">Thrill<span>ME</span></h2><p>{locale === "ko" ? <>현장의 짜릿함을 온몸으로!<br />차원이 다른 최고의 직관 경험</> : "Feel the excitement. Experience the best moments, live."}</p></div>
