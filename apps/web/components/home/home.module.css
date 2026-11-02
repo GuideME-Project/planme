@@ -1498,7 +1498,7 @@
 .container { width: min(1520px, 79.2%); }
 .hero { min-height: 0; height: clamp(550px, 42.4vw, 814px); }
 .hero::after { content: ""; position: absolute; inset: 0 0 auto; height: 43%; background: linear-gradient(#fcde0070, transparent); pointer-events: none; }
-.heroBackground { object-position: center; }
+.heroBackground { position: absolute; inset: 0; width: 100%; height: 100%; object-position: center; }
 .header { z-index: 2; justify-content: flex-start; width: min(1400px, 73%); height: clamp(100px, 7.3vw, 140px); gap: 24px; }
 .header img { width: clamp(250px, 19vw, 364px); }
 .joinButton { padding: 5px 22px; background: #284dc3; color: white !important; border-radius: 999px; font-size: 9px; white-space: nowrap; }
@@ -1506,10 +1506,10 @@
 .headerTools > a { background: #ffcf23; width: 30px; height: 30px; border-radius: 50%; }
 .headerTools :global(.language-switcher--compact) > button { background: transparent; border: 0; }
 .heroCopy { z-index: 1; padding: 10px 24px 50px; }
-.heroCopy > .eyebrow { font-size: clamp(16px, 1.65vw, 30px); font-weight: 400; color: #5c96a5; letter-spacing: .24em; }
-.heroCopy h1 { font-family: var(--font-home-display), sans-serif; font-size: clamp(66px, 5.3vw, 102px); font-weight: 700; line-height: 1.25; letter-spacing: -.015em; color: #257acb; margin: 20px 0 24px; }
+.heroCopy > .eyebrow { font-size: clamp(16px, 1.65vw, 30px); font-weight: 400; color: #fff; letter-spacing: .24em; }
+.heroCopy h1 { font-family: var(--font-home-display), sans-serif; font-size: clamp(66px, 5.3vw, 102px); font-weight: 700; line-height: 1.25; letter-spacing: -.015em; color: #fff; margin: 20px 0 24px; }
 .heroCopy h1 span { color: inherit; }
-.heroCopy p { color: #257acb; font-size: clamp(13px, 1.1vw, 21px); }
+.heroCopy p { color: #fff; font-size: clamp(13px, 1.1vw, 21px); }
 .searchDock { margin-top: -74px; z-index: 3; }
 .mediaSection { margin-top: 100px; grid-template-columns: 2.63fr 1fr; gap: 30px; }
 /* Keep the source 16:9 ratio so the Roller video is never cropped. */

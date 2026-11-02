@@ -175,6 +175,21 @@ function subscribeContentSearch(callback: () => void) {
 function contentSearchSnapshot() {
   try { return sessionStorage.getItem("planme-content-search"); } catch { return null; }
 }
+const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeReducedMotion(callback: () => void) {
+  const query = window.matchMedia(reducedMotionQuery);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+// The server snapshot reports reduced motion so SSR ships only the poster and no video bytes load before the client knows.
+function HeroVideo() {
+  const reduced = useSyncExternalStore(subscribeReducedMotion, () => window.matchMedia(reducedMotionQuery).matches, () => true);
+  // Browsers that ignore <source media> take the first entry, so the desktop file stays first.
+  return reduced ? null : <video className={styles.heroBackground} autoPlay muted loop playsInline aria-hidden="true">
+    <source media="(min-width: 768px)" src={homeMediaUrl("hero-surfing.mp4")} type="video/mp4" />
+    <source src={homeMediaUrl("hero-surfing-mobile.mp4")} type="video/mp4" />
+  </video>;
+}
 type MagazineState = ReturnType<typeof useMagazine>;
 function SavedContentExplorer({ articles, magazine }: { articles: HomeArticle[]; magazine: MagazineState }) {
   const saved = useSyncExternalStore(subscribeContentSearch, contentSearchSnapshot, () => null);
@@ -550,13 +565,14 @@ export function PlanmeHome({ children, articles: initialArticles = [], rollerCar
       <div className={styles.hero}>
         <Image
           unoptimized
-          src={homeMediaUrl("hero-autumn.jpg")}
+          src={homeMediaUrl("hero-surfing-poster.jpg")}
           alt=""
           fill
           priority
           sizes="100vw"
           className={styles.heroBackground}
         />
+        <HeroVideo />
         <header className={styles.header}>
           <Link href={`/${locale}`} aria-label={t("PlanME 홈")}>
             <Image
@@ -604,7 +620,7 @@ export function PlanmeHome({ children, articles: initialArticles = [], rollerCar
         <section className={styles.thrillSection} aria-labelledby="thrill-title">
           <div><span className={styles.thrillEyebrow}>Only The Best Quality For You</span><h2 id="thrill-title">Thrill<span>ME</span></h2><p>{locale === "ko" ? <>현장의 짜릿함을 온몸으로!<br />차원이 다른 최고의 직관 경험</> : "Feel the excitement. Experience the best moments, live."}</p></div>
           <div className={styles.thrillVideo}>
-            <HomeVideo poster="thrillme-cover.png" source="thrillme-feature.mp4" label={locale === "ko" ? "ThrillME 소개 영상 재생" : "Play ThrillME introduction video"} />
+            <HomeVideo poster="thrillme-f1-sau-cover.jpg" source="thrillme-f1-sau.mp4" label={locale === "ko" ? "ThrillME 소개 영상 재생" : "Play ThrillME introduction video"} />
           </div>
         </section>
         <div className={styles.advertising} aria-label={locale === "ko" ? "광고 영역" : "Advertisement"}><Image unoptimized src={homeMediaUrl("advertisement-design.jpg")} alt="Guam International Dance Festival 2026 — December 4, 5 and 6" fill sizes="(max-width: 767px) 100vw, 1480px" /></div>
