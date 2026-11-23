@@ -2619,7 +2619,7 @@ export function ItineraryDashboard({
             sx={{
               display: "grid",
               gap: 2,
-              gridTemplateColumns: { xs: "1fr" },
+              gridTemplateColumns: { xs: "minmax(0, 1fr)" },
               p: { xs: 1.5, md: 2 },
             }}
           >
