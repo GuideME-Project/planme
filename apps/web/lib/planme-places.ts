@@ -90,7 +90,9 @@ export async function resolveSelectedPlanmePlace(placeId: string, sessionToken: 
       !Array.isArray(payload.types) || !payload.types.every((type) => typeof type === "string")) return null;
     const name = payload.displayName.text.trim();
     const formattedAddress = payload.formattedAddress.trim();
-    const searchText = formattedAddress.endsWith(name) ? formattedAddress : `${formattedAddress} ${name}`;
+    const fullSearchText = formattedAddress.endsWith(name) ? formattedAddress : `${formattedAddress} ${name}`;
+    // Search input allows 100 chars; long POI addresses fall back to the selected place name.
+    const searchText = fullSearchText.length <= 100 ? fullSearchText : name;
     if (searchText.length > 100) return null;
     const countries = payload.addressComponents.filter((component) => Array.isArray(component?.types) && component.types.includes("country"));
     const country = countries[0];
