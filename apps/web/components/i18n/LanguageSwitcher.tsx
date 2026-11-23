@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLocale } from "./LocaleProvider";
-import { localizedPath } from "@/lib/i18n/routing";
+import { localeCookieName, localizedPath } from "@/lib/i18n/routing";
 import { Globe } from "lucide-react";
 
 // Remember an explicit language choice for one year; an explicit URL always takes precedence.
@@ -57,7 +57,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
               event.preventDefault();
               const save = new Event("planme:before-language-change", { cancelable: true });
               if (!window.dispatchEvent(save)) { setNotice(true); return; }
-              document.cookie = `planme-locale=${language}; Path=/; Max-Age=${localePreferenceMaxAgeSeconds}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+              document.cookie = `${localeCookieName}=${language}; Path=/; Max-Age=${localePreferenceMaxAgeSeconds}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
               // A full navigation also restores form state consistently across root-layout changes.
               window.location.assign(localizedPath(pathname, language) + window.location.search + window.location.hash);
             }}
