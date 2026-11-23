@@ -122,6 +122,10 @@ export function HomeClosingSections() {
             </div>
           </div>
           <div className={styles.footerBottom}>
+            <address className={styles.companyInfo}>
+              <span>GuideME Holdings, Inc. | 6844 S SOUTH SHORE DR APT 2, CHICAGO, IL</span>
+              <span>EIN: 42-3714829 | Account Number 550423304(Routing Number: 122039399)</span>
+            </address>
             <div className={styles.appCopyright}>Copyright © {new Date().getFullYear()} GuideME. All rights reserved.</div>
             <div className={styles.legalLinks}>
               <span>Privacy Policy</span>
