@@ -16,7 +16,9 @@ const nextConfig: NextConfig = {
     : undefined,
   experimental: {
     serverActions: {
-      allowedOrigins: devAllowedOrigin ? [devAllowedOrigin] : undefined,
+      // Cloudflare's 8443 origin port reaches the app as Host `www.planme.kr:8443`, so the public origin is allowed explicitly.
+      // Hardcoded because standalone builds bake this config in, and PLANME_WEB_ORIGIN only exists at runtime.
+      allowedOrigins: ["www.planme.kr", ...(devAllowedOrigin ? [devAllowedOrigin] : [])],
     },
   },
 };

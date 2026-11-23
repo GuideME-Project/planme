@@ -2,10 +2,13 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { autocompletePlanmePlaces, isPlanmePlacesSessionToken, PlanmePlacesError } from "@/lib/planme-places";
 import { consumePlanmeAutocompleteRateLimit, getOrCreatePlanmeSearchSessionId } from "@/lib/planme-search-rate-limit";
+import { getPlanmeWebOrigin } from "@/lib/planme-web-origin";
 
 export async function POST(request: Request) {
   const reply = (message: string, status: number) => NextResponse.json({ suggestions: [], message }, { status, headers: { "Cache-Control": "no-store" } });
-  if (request.headers.get("origin") !== new URL(request.url).origin) {
+  // Standalone builds derive request.url from the bind address (https://0.0.0.0:3000 in production), so the public origin is checked too.
+  const origin = request.headers.get("origin");
+  if (origin !== getPlanmeWebOrigin() && origin !== new URL(request.url).origin) {
     return reply("이 페이지에서 장소를 다시 검색해 주세요.", 403);
   }
   let body: { query?: string; sessionToken?: string; locale?: string };
