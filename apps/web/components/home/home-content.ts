@@ -21,15 +21,6 @@ export const appLinks = {
 
 export type ContentCategory = "all" | "magazine" | "deal" | "flight" | "stay" | "tour";
 
-export type HomeArticle = {
-  id: string;
-  title: string;
-  summary: string;
-  href: string;
-  image?: string | null;
-  language?: string;
-};
-
 export const categories: { id: ContentCategory; label: string }[] = [
   { id: "all", label: "All" },
   { id: "magazine", label: "Roller’s Dispatch" },

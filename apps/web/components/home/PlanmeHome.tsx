@@ -23,8 +23,8 @@ import {
   categories,
   partnerLinks,
   picks,
+  rollersDispatch,
   type ContentCategory,
-  type HomeArticle,
 } from "./home-content";
 import styles from "./home.module.css";
 import { HomeClosingSections } from "./HomeClosingSections";
@@ -35,11 +35,10 @@ import type { PlanmeRollerCards } from "@/lib/planme-rollers";
 import { HomeVideo } from "./HomeVideo";
 import { HelpmeButton } from "./HelpmeButton";
 import { PartnerWidget } from "./PartnerWidget";
-import { RollersDispatch } from "./RollersDispatch";
+import { RollersDispatch, dispatchImage, dispatchLink } from "./RollersDispatch";
 import { getContentPage } from "./content-pagination";
-import { useMagazine } from "./use-magazine";
 
-type PlanmeHomeProps = { children: ReactNode; articles?: HomeArticle[]; rollerCards?: PlanmeRollerCards | null; dispatchArticles?: DispatchArticle[] | null };
+type PlanmeHomeProps = { children: ReactNode; rollerCards?: PlanmeRollerCards | null; dispatchArticles?: DispatchArticle[] | null };
 
 const banners = [
   {
@@ -191,34 +190,9 @@ function HeroVideo() {
     <source src={homeMediaUrl("hero-surfing-mobile.mp4")} type="video/mp4" />
   </video>;
 }
-type MagazineState = ReturnType<typeof useMagazine>;
-function SavedContentExplorer({ articles, magazine }: { articles: HomeArticle[]; magazine: MagazineState }) {
+function SavedContentExplorer() {
   const saved = useSyncExternalStore(subscribeContentSearch, contentSearchSnapshot, () => null);
-  return <ContentExplorer key={saved ?? "initial"} articles={articles} magazine={magazine} initial={readContentSearch(saved)} />;
-}
-function ArticleImage({ article }: { article: HomeArticle }) {
-  const [failed, setFailed] = useState(false);
-  return article.image && !failed ? (
-    // Use the API's absolute media URL without introducing an image optimization cache.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img className={styles.articleImage} src={article.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
-  ) : <div className={styles.articleImageFallback} aria-hidden="true"><Compass size={40} /></div>;
-}
-
-function MagazineNotice({ magazine }: { magazine: MagazineState }) {
-  const { t, locale } = useLocale();
-  const name = magazine.countryCode
-    ? new Intl.DisplayNames([locale], { type: "region" }).of(magazine.countryCode) : null;
-  if (!name && !magazine.loading && !magazine.failed && magazine.articles.length) return null;
-  return <div className={styles.magazineNotice} aria-busy={magazine.loading}>
-    {name && <strong>{name} · Roller’s Dispatch</strong>}
-    {(magazine.loading || magazine.failed || !magazine.articles.length) && <p role={magazine.failed ? "alert" : "status"}>
-      {magazine.loading ? t("매거진 기사를 불러오고 있어요.")
-        : magazine.failed ? t("매거진 기사를 불러오지 못했어요. 다시 시도해 주세요.")
-        : t("이 국가에 등록된 매거진 기사가 아직 없어요.")}
-    </p>}
-    {magazine.failed && <button type="button" onClick={magazine.retry}>{t("다시 시도")}</button>}
-  </div>;
+  return <ContentExplorer key={saved ?? "initial"} initial={readContentSearch(saved)} />;
 }
 
 function ServiceBanner({ kind }: { kind: "deal" | "stay" }) {
@@ -282,7 +256,7 @@ function mosaicFill(count: number) {
   return rest === 0 ? "narrow" : rest === 1 ? "wide-promo" : undefined;
 }
 
-function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticle[]; initial: ContentSearch; magazine: MagazineState }) {
+function ContentExplorer({ initial }: { initial: ContentSearch }) {
   const { t, locale } = useLocale();
   const [category, setCategory] = useState<ContentCategory>(initial.category);
   const [query, setQuery] = useState(initial.query);
@@ -309,25 +283,23 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         .toLocaleLowerCase()
         .includes(keyword),
   );
-  // Magazine articles stay in All; the Roller's Dispatch tab shows the app's photo links instead.
-  const visibleArticles =
+  // All shows the first five Roller's Dispatch photos; the magazine feed has no thumbnails.
+  const visibleDispatch =
     category === "all"
-      ? articles.filter((article) =>
-          `${article.title} ${article.summary}`
-            .toLocaleLowerCase()
-            .includes(keyword),
+      ? rollersDispatch.slice(0, 5).filter((item) =>
+          `${t(item.title)} ${item.title}`.toLocaleLowerCase().includes(keyword),
         )
       : [];
   const isBannerTab = category === "deal" || category === "stay";
   // Tabs with their own fixed content: no search, view toggle or pagination.
   const isFixedTab = category === "flight" || category === "tour" || category === "magazine";
-  const total = isBannerTab ? 1 : visiblePicks.length + visibleArticles.length;
+  const total = isBannerTab ? 1 : visiblePicks.length + visibleDispatch.length;
   const { pageCount, currentPage, offset, end, pageNumbers } = getContentPage(
     total,
     page,
   );
   const pagePicks = visiblePicks.slice(offset, end);
-  const pageArticles = visibleArticles.slice(
+  const pageDispatch = visibleDispatch.slice(
     Math.max(0, offset - visiblePicks.length),
     Math.max(0, end - visiblePicks.length),
   );
@@ -429,7 +401,6 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
           </button>
         </div>}
       </div>
-      {category === "all" && <MagazineNotice magazine={magazine} />}
       <div
         ref={panelRef}
         id="home-content-panel"
@@ -440,13 +411,13 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         {!isFixedTab && <span className={styles.srOnly} role="status">{locale === "ko" ? `콘텐츠 ${total}개` : `${total} ${total === 1 ? "item" : "items"}`}</span>}
         {category === "flight" || category === "tour" ? <PartnerWidget key={category} kind={category} /> : category === "magazine" ? <RollersDispatch /> : category === "deal" ? <ServiceBanner kind="deal" /> : category === "stay" ? <ServiceBanner kind="stay" /> : <div
           className={view === "grid" ? styles.pickGrid : styles.pickList}
-          data-count={pagePicks.length + pageArticles.length}
+          data-count={pagePicks.length + pageDispatch.length}
           data-layout={
-            category === "all" && pagePicks.length + pageArticles.length >= 6
+            category === "all" && pagePicks.length + pageDispatch.length >= 6
               ? "mosaic"
               : "balanced"
           }
-          data-fill={mosaicFill(pagePicks.length + pageArticles.length)}
+          data-fill={mosaicFill(pagePicks.length + pageDispatch.length)}
         >
           {pagePicks.map((pick) => (
             <a
@@ -462,7 +433,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
                 alt={t(pick.imageAlt)}
                 fill
                 sizes={
-                  pagePicks.length + pageArticles.length === 1
+                  pagePicks.length + pageDispatch.length === 1
                     ? "100vw"
                     : "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 66vw"
                 }
@@ -491,26 +462,16 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
               </div>
             </a>
           ))}
-          {pageArticles.map((article) => (
-            <a
-              className={styles.articleCard}
-              key={article.id}
-              href={article.href}
-              target="_parent"
-              rel="noopener noreferrer"
-            >
-              <ArticleImage article={article} />
-              <span className={styles.eyebrow}>ROLLER’S DISPATCH</span>
-              <h3 lang={article.language}>{article.title}</h3>
-              {article.summary && <p lang={article.language}>{article.summary}</p>}
-              <span>{t("기사 읽기")}<ArrowUpRight size={18} aria-hidden="true" />
-              </span>
+          {pageDispatch.map((item) => (
+            <a key={`dispatch-${item.id}`} className={styles.pickCard} target="_parent" {...dispatchLink(item, locale)}>
+              <Image unoptimized src={dispatchImage(item.id)} alt={t(item.title)} fill
+                sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw" />
             </a>
           ))}
           {category === "all" && <ServicePromotions />}
         </div>}
         {category === "all" && <><div className={styles.inlineServiceBanners}><ServiceBanner kind="deal" /><ServiceBanner kind="stay" /></div></>}
-        {!isFixedTab && !isBannerTab && !visiblePicks.length && !visibleArticles.length && (
+        {!isFixedTab && !isBannerTab && !visiblePicks.length && !visibleDispatch.length && (
           <div className={styles.emptyState}>
             <Compass size={32} aria-hidden="true" />
             <h3>
@@ -568,10 +529,8 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
   );
 }
 
-export function PlanmeHome({ children, articles: initialArticles = [], rollerCards, dispatchArticles }: PlanmeHomeProps) {
+export function PlanmeHome({ children, rollerCards, dispatchArticles }: PlanmeHomeProps) {
   const { t, locale } = useLocale();
-  const magazine = useMagazine();
-  const articles = magazine.articles.length ? magazine.articles : initialArticles;
   return (
     <main className={styles.home}>
       <a className={styles.skipLink} href="#trip-search">{t("여행 검색으로 바로가기")}</a>
@@ -629,7 +588,7 @@ export function PlanmeHome({ children, articles: initialArticles = [], rollerCar
           </div>
         </section>
         <FestivalBanner />
-        <SavedContentExplorer articles={articles} magazine={magazine} />
+        <SavedContentExplorer />
         <section className={styles.thrillSection} aria-labelledby="thrill-title">
           <div><span className={styles.thrillEyebrow}>Only The Best Quality For You</span><h2 id="thrill-title">Thrill<span>ME</span></h2><p>{locale === "ko" ? <>현장의 짜릿함을 온몸으로!<br />차원이 다른 최고의 직관 경험</> : "Feel the excitement. Experience the best moments, live."}</p></div>
           <div className={styles.thrillVideo}>
