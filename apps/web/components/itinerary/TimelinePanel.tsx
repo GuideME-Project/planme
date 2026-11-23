@@ -6,8 +6,7 @@ import HotelRoundedIcon from "@mui/icons-material/HotelRounded";
 import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
 import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
 import TrainRoundedIcon from "@mui/icons-material/TrainRounded";
-import WorkRoundedIcon from "@mui/icons-material/WorkRounded";
-import { alpha, Box, Button, Chip, Stack, Typography, useTheme } from "@mui/material";
+import { alpha, Box, Chip, Stack, Typography, useTheme } from "@mui/material";
 import type { ReactNode } from "react";
 import type { RouteStop, TimelineEvent } from "@planme/core";
 import type { PlanmeThemeMode } from "@/theme/theme";
@@ -178,6 +177,7 @@ function RouteTimelineColumn({
           borderColor: alpha(theme.palette[tone].main, 0.28),
           borderRadius: 1.5,
           display: "flex",
+          flexWrap: "wrap",
           gap: 1,
           justifyContent: "space-between",
           mt: "auto",
@@ -198,19 +198,15 @@ function RouteTimelineColumn({
             color="error"
             data-testid="carryme-duration-saving-chip"
             label={t(savingLabel)}
+            sx={{
+              height: "auto",
+              maxWidth: "100%",
+              minHeight: 32,
+              "& .MuiChip-label": { py: 0.5, whiteSpace: "normal" },
+            }}
           />
         ) : null}
       </Box>
-
-      {isCarryme ? (
-        <Button
-          color="secondary"
-          fullWidth
-          size="large"
-          startIcon={<WorkRoundedIcon />}
-          variant="contained"
-        >{t("CarryME로 짐 맡기기 (데모)")}</Button>
-      ) : null}
     </Stack>
   );
 }
@@ -269,7 +265,6 @@ export function TimelinePanel({
           savingLabel={savingLabel}
         />
       </Box>
-      <Typography color="text.secondary" sx={{ fontSize: 12, pb: 2, textAlign: "center" }}>{t("* 실제 결제 기능은 포함되어 있지 않은 데모입니다.")}</Typography>
     </Box>
   );
 }
