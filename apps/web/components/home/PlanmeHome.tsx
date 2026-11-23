@@ -226,7 +226,7 @@ function ServiceBanner({ kind }: { kind: "deal" | "stay" }) {
   const { t, locale } = useLocale();
   // RestME matches the app intro: its copy and the Aviasales hotel link.
   if (kind === "stay") return (
-    <a id="stay-promo" className={`${styles.serviceBanner} ${styles.restmeBanner}`} href={partnerLinks.stay} target="_parent" rel="sponsored noopener noreferrer">
+    <a id="stay-promo" className={`${styles.serviceBanner} ${styles.restmeBanner}`} href={partnerLinks.stay} target="_blank" rel="noopener noreferrer sponsored">
       <div className={styles.restmeCopy}>
         <Image unoptimized src={homeMediaUrl("rest-me-logo.png")} alt="RestME by GuideME" width={549} height={111} />
         <p>{t("전 세계 호텔부터 프라이빗 독채까지")}<br />{t("최저가 숙소 보장")}</p>
@@ -463,8 +463,8 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
               key={pick.id}
               className={`${styles.pickCard} ${pick.category === "flight" ? styles.flightCard : ""}`}
               href={pick.href}
-              target="_parent"
-              rel="sponsored noopener noreferrer"
+              target={pick.href === partnerLinks.stay ? "_blank" : "_parent"}
+              rel="noopener noreferrer sponsored"
             >
               <Image
                 unoptimized
