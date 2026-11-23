@@ -23,6 +23,7 @@ import {
   categories,
   partnerLinks,
   picks,
+  rollersDispatch,
   type ContentCategory,
   type HomeArticle,
 } from "./home-content";
@@ -35,7 +36,7 @@ import type { PlanmeRollerCards } from "@/lib/planme-rollers";
 import { HomeVideo } from "./HomeVideo";
 import { HelpmeButton } from "./HelpmeButton";
 import { PartnerWidget } from "./PartnerWidget";
-import { RollersDispatch } from "./RollersDispatch";
+import { RollersDispatch, dispatchImage, dispatchLink } from "./RollersDispatch";
 import { getContentPage } from "./content-pagination";
 import { useMagazine } from "./use-magazine";
 
@@ -309,9 +310,15 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         .toLocaleLowerCase()
         .includes(keyword),
   );
-  // Magazine articles stay in All; the Roller's Dispatch tab shows the app's photo links instead.
+  // All shows the searched country's magazine articles; before a trip search it shows the first five Roller's Dispatch photos.
+  const visibleDispatch =
+    category === "all" && !magazine.countryCode
+      ? rollersDispatch.slice(0, 5).filter((item) =>
+          `${t(item.title)} ${item.title}`.toLocaleLowerCase().includes(keyword),
+        )
+      : [];
   const visibleArticles =
-    category === "all"
+    category === "all" && magazine.countryCode
       ? articles.filter((article) =>
           `${article.title} ${article.summary}`
             .toLocaleLowerCase()
@@ -321,16 +328,19 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
   const isBannerTab = category === "deal" || category === "stay";
   // Tabs with their own fixed content: no search, view toggle or pagination.
   const isFixedTab = category === "flight" || category === "tour" || category === "magazine";
-  const total = isBannerTab ? 1 : visiblePicks.length + visibleArticles.length;
+  // Only one of the dispatch photos and the magazine articles is non-empty at a time.
+  const extras = visibleDispatch.length ? visibleDispatch : visibleArticles;
+  const total = isBannerTab ? 1 : visiblePicks.length + extras.length;
   const { pageCount, currentPage, offset, end, pageNumbers } = getContentPage(
     total,
     page,
   );
   const pagePicks = visiblePicks.slice(offset, end);
-  const pageArticles = visibleArticles.slice(
-    Math.max(0, offset - visiblePicks.length),
-    Math.max(0, end - visiblePicks.length),
-  );
+  const extrasStart = Math.max(0, offset - visiblePicks.length);
+  const extrasEnd = Math.max(0, end - visiblePicks.length);
+  const pageDispatch = visibleDispatch.slice(extrasStart, extrasEnd);
+  const pageArticles = visibleArticles.slice(extrasStart, extrasEnd);
+  const pageItemCount = pagePicks.length + pageDispatch.length + pageArticles.length;
   const changePage = (next: number) => {
     setPage(next);
     panelRef.current?.focus({ preventScroll: true });
@@ -429,7 +439,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
           </button>
         </div>}
       </div>
-      {category === "all" && <MagazineNotice magazine={magazine} />}
+      {category === "all" && magazine.countryCode && <MagazineNotice magazine={magazine} />}
       <div
         ref={panelRef}
         id="home-content-panel"
@@ -440,13 +450,13 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         {!isFixedTab && <span className={styles.srOnly} role="status">{locale === "ko" ? `콘텐츠 ${total}개` : `${total} ${total === 1 ? "item" : "items"}`}</span>}
         {category === "flight" || category === "tour" ? <PartnerWidget key={category} kind={category} /> : category === "magazine" ? <RollersDispatch /> : category === "deal" ? <ServiceBanner kind="deal" /> : category === "stay" ? <ServiceBanner kind="stay" /> : <div
           className={view === "grid" ? styles.pickGrid : styles.pickList}
-          data-count={pagePicks.length + pageArticles.length}
+          data-count={pageItemCount}
           data-layout={
-            category === "all" && pagePicks.length + pageArticles.length >= 6
+            category === "all" && pageItemCount >= 6
               ? "mosaic"
               : "balanced"
           }
-          data-fill={mosaicFill(pagePicks.length + pageArticles.length)}
+          data-fill={mosaicFill(pageItemCount)}
         >
           {pagePicks.map((pick) => (
             <a
@@ -462,7 +472,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
                 alt={t(pick.imageAlt)}
                 fill
                 sizes={
-                  pagePicks.length + pageArticles.length === 1
+                  pageItemCount === 1
                     ? "100vw"
                     : "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 66vw"
                 }
@@ -491,6 +501,12 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
               </div>
             </a>
           ))}
+          {pageDispatch.map((item) => (
+            <a key={`dispatch-${item.id}`} className={styles.pickCard} target="_parent" {...dispatchLink(item, locale)}>
+              <Image unoptimized src={dispatchImage(item.id)} alt={t(item.title)} fill
+                sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw" />
+            </a>
+          ))}
           {pageArticles.map((article) => (
             <a
               className={styles.articleCard}
@@ -510,7 +526,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
           {category === "all" && <ServicePromotions />}
         </div>}
         {category === "all" && <><div className={styles.inlineServiceBanners}><ServiceBanner kind="deal" /><ServiceBanner kind="stay" /></div></>}
-        {!isFixedTab && !isBannerTab && !visiblePicks.length && !visibleArticles.length && (
+        {!isFixedTab && !isBannerTab && !visiblePicks.length && !extras.length && (
           <div className={styles.emptyState}>
             <Compass size={32} aria-hidden="true" />
             <h3>
