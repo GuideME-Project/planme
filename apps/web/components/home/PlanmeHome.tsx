@@ -35,6 +35,7 @@ import type { PlanmeRollerCards } from "@/lib/planme-rollers";
 import { HomeVideo } from "./HomeVideo";
 import { HelpmeButton } from "./HelpmeButton";
 import { PartnerWidget } from "./PartnerWidget";
+import { RollersDispatch } from "./RollersDispatch";
 import { getContentPage } from "./content-pagination";
 import { useMagazine } from "./use-magazine";
 
@@ -221,14 +222,24 @@ function MagazineNotice({ magazine }: { magazine: MagazineState }) {
 }
 
 function ServiceBanner({ kind }: { kind: "deal" | "stay" }) {
-  const { locale } = useLocale();
-  const isDeal = kind === "deal";
+  const { t, locale } = useLocale();
+  // RestME matches the app intro: its copy and the Aviasales hotel link.
+  if (kind === "stay") return (
+    <a id="stay-promo" className={`${styles.serviceBanner} ${styles.restmeBanner}`} href={partnerLinks.stay} target="_parent" rel="sponsored noopener noreferrer">
+      <div className={styles.restmeCopy}>
+        <Image unoptimized src={homeMediaUrl("rest-me-logo.png")} alt="RestME by GuideME" width={549} height={111} />
+        <p>{t("전 세계 호텔부터 프라이빗 독채까지")}<br />{t("최저가 숙소 보장")}</p>
+        <span>{t("숙소 찾아보기")}<ArrowUpRight size={17} aria-hidden="true" /></span>
+      </div>
+      <Image unoptimized className={styles.restmePhoto} src={homeMediaUrl("rest-me-popular-hotel-1.png")} alt="" width={538} height={312} />
+    </a>
+  );
   return (
-    <div id={isDeal ? "deal-promo" : "stay-promo"} className={styles.serviceBanner}>
+    <div id="deal-promo" className={styles.serviceBanner}>
       <Image
         unoptimized
-        src={isDeal ? homeMediaUrl(`dealme-${locale}.jpg`) : homeMediaUrl("restme-banner.jpg")}
-        alt={isDeal ? (locale === "ko" ? "DealME 웰컴 쿠폰팩 — Coming Soon" : "DealME Welcome Coupon Pack — Coming Soon") : "Stay with Roller — Your home in Korea for a month or more. Service starts October 15th."}
+        src={homeMediaUrl(`dealme-${locale}.jpg`)}
+        alt={locale === "ko" ? "DealME 웰컴 쿠폰팩 — Coming Soon" : "DealME Welcome Coupon Pack — Coming Soon"}
         fill
         sizes="(max-width: 767px) 100vw, 1200px"
       />
@@ -298,8 +309,9 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         .toLocaleLowerCase()
         .includes(keyword),
   );
+  // Magazine articles stay in All; the Roller's Dispatch tab shows the app's photo links instead.
   const visibleArticles =
-    category === "all" || category === "magazine"
+    category === "all"
       ? articles.filter((article) =>
           `${article.title} ${article.summary}`
             .toLocaleLowerCase()
@@ -307,7 +319,8 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         )
       : [];
   const isBannerTab = category === "deal" || category === "stay";
-  const isWidgetTab = category === "flight" || category === "tour";
+  // Tabs with their own fixed content: no search, view toggle or pagination.
+  const isFixedTab = category === "flight" || category === "tour" || category === "magazine";
   const total = isBannerTab ? 1 : visiblePicks.length + visibleArticles.length;
   const { pageCount, currentPage, offset, end, pageNumbers } = getContentPage(
     total,
@@ -333,7 +346,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         <div>
           <h2 id="discover-title">PlanME’s Pick</h2>
         </div>
-        {!isWidgetTab && <label className={styles.contentSearch}>
+        {!isFixedTab && <label className={styles.contentSearch}>
           <Search size={19} aria-hidden="true" />
           <span className={styles.srOnly}>{t("여행 콘텐츠 검색")}</span>
           <input
@@ -393,7 +406,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
             </button>
           ))}
         </div>
-        {!isWidgetTab && <div
+        {!isFixedTab && <div
           className={styles.viewToggle}
           aria-label={t("콘텐츠 보기 방식")}
           role="group"
@@ -416,7 +429,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
           </button>
         </div>}
       </div>
-      {(category === "all" || category === "magazine") && <MagazineNotice magazine={magazine} />}
+      {category === "all" && <MagazineNotice magazine={magazine} />}
       <div
         ref={panelRef}
         id="home-content-panel"
@@ -424,8 +437,8 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
         aria-labelledby={`home-tab-${category}`}
         tabIndex={0}
       >
-        {!isWidgetTab && <span className={styles.srOnly} role="status">{locale === "ko" ? `콘텐츠 ${total}개` : `${total} ${total === 1 ? "item" : "items"}`}</span>}
-        {category === "flight" || category === "tour" ? <PartnerWidget key={category} kind={category} /> : category === "deal" ? <ServiceBanner kind="deal" /> : category === "stay" ? <ServiceBanner kind="stay" /> : <div
+        {!isFixedTab && <span className={styles.srOnly} role="status">{locale === "ko" ? `콘텐츠 ${total}개` : `${total} ${total === 1 ? "item" : "items"}`}</span>}
+        {category === "flight" || category === "tour" ? <PartnerWidget key={category} kind={category} /> : category === "magazine" ? <RollersDispatch /> : category === "deal" ? <ServiceBanner kind="deal" /> : category === "stay" ? <ServiceBanner kind="stay" /> : <div
           className={view === "grid" ? styles.pickGrid : styles.pickList}
           data-count={pagePicks.length + pageArticles.length}
           data-layout={
@@ -441,7 +454,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
               className={`${styles.pickCard} ${pick.category === "flight" ? styles.flightCard : ""}`}
               href={pick.href}
               target="_parent"
-              rel={pick.category === "stay" ? undefined : "sponsored noopener noreferrer"}
+              rel="sponsored noopener noreferrer"
             >
               <Image
                 unoptimized
@@ -497,7 +510,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
           {category === "all" && <ServicePromotions />}
         </div>}
         {category === "all" && <><div className={styles.inlineServiceBanners}><ServiceBanner kind="deal" /><ServiceBanner kind="stay" /></div></>}
-        {!isWidgetTab && !isBannerTab && !visiblePicks.length && !visibleArticles.length && (category !== "magazine" || (!magazine.loading && !magazine.failed && articles.length > 0)) && (
+        {!isFixedTab && !isBannerTab && !visiblePicks.length && !visibleArticles.length && (
           <div className={styles.emptyState}>
             <Compass size={32} aria-hidden="true" />
             <h3>
@@ -517,7 +530,7 @@ function ContentExplorer({ articles, initial, magazine }: { articles: HomeArticl
           </div>
         )}
       </div>
-      {total > 0 && !isBannerTab && !isWidgetTab && (
+      {total > 0 && !isBannerTab && !isFixedTab && (
         <nav className={styles.pagination} aria-label={t("콘텐츠 페이지")}>
           <button
             aria-label={t("이전 페이지")}

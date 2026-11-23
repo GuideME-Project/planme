@@ -4,6 +4,8 @@ import { homeMediaUrl } from "./home-media";
 export const partnerLinks = {
   flight: "https://aviasales.tpx.lt/cyAmGC5q",
   tour: "https://tiqets.tpx.lt/YsmjlcbA",
+  // Same Aviasales hotel link as GuideME-App c2c870db (RestME intro).
+  stay: "https://aviasales.tpx.lt/3zE4l2bQ",
   esim: "https://yesim.tpx.lt/oACpSmbo",
   insurance: "https://ektatraveling.tpx.lt/dJ5LpEr4",
   wink: "https://www.winkme.kr/",
@@ -66,8 +68,8 @@ export const picks: {
     description: "RestME와 함께 나에게 맞는 숙소 찾기",
     image: homeMediaUrl("rest-me-popular-hotel-2.png"),
     imageAlt: "나무 천장과 흰 소파가 있는 숙소 거실",
-    href: "#stay-promo",
-    partner: "GuideME",
+    href: partnerLinks.stay,
+    partner: "Aviasales",
     keywords: "호텔 숙박 숙소 restme hotel stay",
   },
   {
@@ -114,6 +116,32 @@ export const picks: {
     partner: "KKday",
     keywords: "강릉 gangneung 한국 korea 국내",
   },
+];
+
+// Roller's Dispatch photos, in the order of GuideME-App HomeLocalFavoritesSection.
+// Photos 1·2·3·4·7·10·11·16 and their links come from the 2026-11 Home_Link sheet; the rest match the app.
+// Links 2·3·4·7·10·11·16 were generated in the Travelpayouts Planme project (hrefEn opens the /en/ product page).
+export const rollersDispatch: { id: number; title: string; href: string; hrefEn?: string }[] = [
+  { id: 1, title: "발리", href: "#app-download" },
+  { id: 2, title: "뉴욕", href: "https://tiqets.tpx.lt/uyDWRqkM", hrefEn: "https://tiqets.tpx.lt/QoQjF8aT" },
+  { id: 3, title: "야스 마리나 서킷: 가이드 투어", href: "https://tiqets.tpx.lt/SSGt5KWT", hrefEn: "https://tiqets.tpx.lt/d4Ip5Tx1" },
+  { id: 4, title: "모로코", href: "https://tiqets.tpx.lt/lJvDEvui", hrefEn: "https://tiqets.tpx.lt/u5BabdNt" },
+  { id: 5, title: "시에나", href: "https://tiqets.tpx.lt/Sz3sJnmc" },
+  { id: 6, title: "안동", href: "https://kkday.tpx.lt/jdG5u8s7" },
+  { id: 7, title: "아이슬란드", href: "https://tiqets.tpx.lt/g9X2a4UM", hrefEn: "https://tiqets.tpx.lt/DENxtrVk" },
+  { id: 8, title: "시카고 푸드", href: "https://tiqets.tpx.lt/nXv5pQYq" },
+  { id: 9, title: "샌프란시스코 푸드", href: "https://tiqets.tpx.lt/e9IVYCAO" },
+  { id: 10, title: "이스탄불", href: "https://tiqets.tpx.lt/vNBuZk3y", hrefEn: "https://tiqets.tpx.lt/fbddK9gd" },
+  { id: 11, title: "라고메라: 가이드와 함께하는 테네리페 일일 투어 + 보트 타기 + 점심 식사", href: "https://tiqets.tpx.lt/KajLF12N", hrefEn: "https://tiqets.tpx.lt/lPmpOmWP" },
+  { id: 12, title: "벨기에 브뤼셀", href: "https://tiqets.tpx.lt/e3XAWkj4" },
+  { id: 13, title: "시카고 시티 패스", href: "https://tiqets.tpx.lt/AUiy854e" },
+  { id: 14, title: "피렌체", href: "https://tiqets.tpx.lt/I1ud2lbj" },
+  { id: 15, title: "리스본 궁전 1일 투어", href: "https://tiqets.tpx.lt/hpRgc2SR" },
+  { id: 16, title: "카르타헤나 성곽도시 도보 투어", href: "https://tiqets.tpx.lt/CQ0R7M5m", hrefEn: "https://tiqets.tpx.lt/gXNaio9r" },
+  { id: 17, title: "부산", href: "https://kkday.tpx.lt/vqZpkxwT" },
+  { id: 18, title: "경주 야경", href: "https://kkday.tpx.lt/5KTUYdXR" },
+  { id: 19, title: "에버랜드", href: "https://kkday.tpx.lt/HUVsxfcu" },
+  { id: 20, title: "서울 해방촌", href: "https://planme.kr/" },
 ];
 
 export const questions = [
