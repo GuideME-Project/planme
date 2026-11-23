@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { defaultLocale, isLocale } from "./lib/i18n/routing";
+import { defaultLocale, isLocale, localeCookieName } from "./lib/i18n/routing";
 import { shouldRejectUnverifiedOrigin } from "./lib/planme-origin-verify";
 
 /** Paths that need locale handling; every other path only passes through the origin verification. */
@@ -15,7 +15,7 @@ export function proxy(request: NextRequest) {
 
   const segment = path.split("/")[1];
   if (path === "/" || path.startsWith("/itinerary/")) {
-    const preferred = request.cookies.get("planme-locale")?.value ?? defaultLocale;
+    const preferred = request.cookies.get(localeCookieName)?.value ?? defaultLocale;
     const locale = isLocale(preferred) ? preferred : defaultLocale;
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}${path === "/" ? "" : path}`;

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { NextRequest } from "next/server";
 import { proxy } from "../proxy";
-import { isLocale, localizedPath } from "../lib/i18n/routing";
+import { isLocale, localeCookieName, localizedPath } from "../lib/i18n/routing";
 import { translate, translateError } from "../lib/i18n/messages";
 import en from "../lib/i18n/en.json";
 import ko from "../lib/i18n/ko.json";
@@ -22,14 +22,17 @@ assert.equal(translate("en", "경복궁"), "경복궁");
 assert.equal(translateError("en", "새로운 제공자 오류"), "We couldn't complete this request. Please try again.");
 
 const redirectCases = [
+  // Choices saved under the old cookie name no longer apply.
+  ["/?q=Seoul", "planme-locale=ko", "/en?q=Seoul"],
+  ["/itinerary/abc?ref=gpt", "planme-locale=ko", "/en/itinerary/abc?ref=gpt"],
   ["/?q=Seoul", "", "/en?q=Seoul"],
-  ["/?q=Seoul", "planme-locale=en", "/en?q=Seoul"],
-  ["/?q=Seoul", "planme-locale=ko", "/ko?q=Seoul"],
-  ["/", "planme-locale=fr", "/en"],
+  ["/?q=Seoul", `${localeCookieName}=en`, "/en?q=Seoul"],
+  ["/?q=Seoul", `${localeCookieName}=ko`, "/ko?q=Seoul"],
+  ["/", `${localeCookieName}=fr`, "/en"],
   ["/itinerary/abc?ref=gpt", "", "/en/itinerary/abc?ref=gpt"],
-  ["/itinerary/abc?ref=gpt", "planme-locale=en", "/en/itinerary/abc?ref=gpt"],
-  ["/itinerary/abc?ref=gpt", "planme-locale=ko", "/ko/itinerary/abc?ref=gpt"],
-  ["/itinerary/abc?ref=gpt", "planme-locale=fr", "/en/itinerary/abc?ref=gpt"],
+  ["/itinerary/abc?ref=gpt", `${localeCookieName}=en`, "/en/itinerary/abc?ref=gpt"],
+  ["/itinerary/abc?ref=gpt", `${localeCookieName}=ko`, "/ko/itinerary/abc?ref=gpt"],
+  ["/itinerary/abc?ref=gpt", `${localeCookieName}=fr`, "/en/itinerary/abc?ref=gpt"],
 ];
 for (const [path, cookie, expected] of redirectCases) {
   const response = proxy(new NextRequest(`https://www.planme.kr${path}`, { headers: { cookie } }));
@@ -39,7 +42,7 @@ for (const [path, cookie, expected] of redirectCases) {
 }
 for (const locale of ["ko", "en"]) {
   const otherLocale = locale === "ko" ? "en" : "ko";
-  const explicit = proxy(new NextRequest(`https://www.planme.kr/${locale}`, { headers: { cookie: `planme-locale=${otherLocale}`, "x-planme-locale": otherLocale } }));
+  const explicit = proxy(new NextRequest(`https://www.planme.kr/${locale}`, { headers: { cookie: `${localeCookieName}=${otherLocale}`, "x-planme-locale": otherLocale } }));
   assert.equal(explicit.headers.get("x-middleware-request-x-planme-locale"), locale);
   assert.equal(explicit.headers.get("location"), null);
 }
@@ -49,7 +52,7 @@ async function checkHttp(): Promise<void> {
 const base: string | undefined = process.env.PLANME_BASE_URL;
 if (base) {
   for (const locale of ["ko", "en"]) {
-    const response: Response = await fetch(`${base}/${locale}?q=Seoul`, { headers: { cookie: `planme-locale=${locale === "ko" ? "en" : "ko"}` } });
+    const response: Response = await fetch(`${base}/${locale}?q=Seoul`, { headers: { cookie: `${localeCookieName}=${locale === "ko" ? "en" : "ko"}` } });
     assert.equal(response.status, 200);
     const html: string = await response.text();
     assert.ok(html.includes(`lang="${locale}"`));
