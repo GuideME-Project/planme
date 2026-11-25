@@ -57,9 +57,10 @@ export function PlanmeSearchHome({
   const [destinationSelection, setDestinationSelection] = useState<PlanmePlaceSelection | null>(null);
   const [consumedTokens, setConsumedTokens] = useState<string[]>([]);
   const [state, formAction, pending] = useActionState(
-    async (previousState: PlanmeSearchActionState, formData: FormData) => {
+    async (_previousState: PlanmeSearchActionState, formData: FormData) => {
       try {
-        return await startPlanmeSearchAction(previousState, formData);
+        // 이전 상태(생성된 일정 전체)를 보내면 요청 본문이 1MB를 넘을 수 있고 서버는 쓰지 않는다.
+        return await startPlanmeSearchAction({}, formData);
       } finally {
         const tokens = [formData.get("originSessionToken"), formData.get("destinationSessionToken")]
           .filter((token): token is string => typeof token === "string" && Boolean(token));
